@@ -217,6 +217,22 @@ def ratings_above_average(movies):
     }
 
 
+#Этап 7
+def all_genres(movies):
+    genres = set()
+    for movie in movies:
+        genres.update(movie["genres"])
+    return genres
+
+
+def common_actors(movie1, movie2):
+    return set(movie1["actors"]) & set(movie2["actors"])
+
+
+def genres_only_in_one(movies_a, movies_b):
+    return all_genres(movies_a) - all_genres(movies_b)
+
+
 if __name__ == "__main__":
     print(f"Средний рейтинг: {average_rating(movies)}")
     print(f"Возраст фильмов (старый, новый, средний): {catalog_age_stats(movies)}")
@@ -237,3 +253,6 @@ if __name__ == "__main__":
     print("\nФильмов по жанрам:", sorted(count_by_genre(movies).items()))
     print("Фильмография O. Isaac:", actor_filmography(movies)["O. Isaac"])
     print("Рейтинги выше среднего:", ratings_above_average(movies))
+    print("\nВсе жанры:", sorted(all_genres(movies)))
+    print("Общие актёры:", sorted(common_actors(movies[0], movies[3])))
+    print("Разность жанров:", sorted(genres_only_in_one(movies[5:6], movies[:5])))
