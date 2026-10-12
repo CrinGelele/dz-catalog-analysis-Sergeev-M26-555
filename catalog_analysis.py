@@ -244,30 +244,73 @@ def total_duration_above_seven(movies):
     return sum(movie["duration_min"] for movie in movies if movie["rating"] > 7)
 
 
-if __name__ == "__main__":
+#Этап 9
+def build_report(movies):
+    print("ОТЧЁТ ПО КАТАЛОГУ")
+    if not movies:
+        print("Каталог пуст")
+        return
+
+    oldest, newest, mean_age = catalog_age_stats(movies)
     print(f"Средний рейтинг: {average_rating(movies)}")
-    print(f"Возраст фильмов (старый, новый, средний): {catalog_age_stats(movies)}")
-    duration = duration_in_hours(movies[0]["duration_min"])
-    print(f"Длительность первого фильма: {duration}")
-    print(f"Категория первого фильма: {rating_tier(movies[0]['rating'])}")
-    print(f"Период первого фильма: {decade_label(movies[0]['year'])}")
+    print(f"Средний возраст фильмов: {mean_age} лет")
+
+    print("\nТоп-3 фильма:")
+    movies_by_title = {movie["title"]: movie for movie in movies}
+    for title, _rating in top_n_by_rating(movies):
+        print(f"  {format_report_line(movies_by_title[title])}")
+
+    print("\nФильмов по жанрам:")
+    genre_counts = count_by_genre(movies)
+    ordered_counts = sorted(genre_counts.items(), key=lambda item: (-item[1], item[0]))
+    for genre, count in ordered_counts:
+        print(f"  {genre} — {count}")
+    genres = ", ".join(sorted(all_genres(movies)))
+    print(f"\nВсе жанры каталога: {genres}")
+
+    print("\nДополнительная статистика:")
+    print(f"Возраст фильмов, лет: самый старый — {oldest}; самый новый — {newest}")
+    print(f"Фильмов длиннее 120 минут: {count_long_movies(movies)}")
+    duration = total_duration_above_seven(movies)
+    print(f"Суммарная длительность фильмов с рейтингом выше 7: {duration} минут")
+
     print("\nФильмы без жанра comedy:")
     print_non_comedy(movies)
     print("\nПервый фильм с рейтингом выше 9.0:")
     print_first_masterpiece(movies)
-    print(f"Фильмов длиннее 120 минут: {count_long_movies(movies)}")
-    print("\nНормализованное название:", normalize_title(movies[2]["title"]))
-    print("Слаг:", make_slug(movies[2]["title"]))
-    print(format_report_line(movies[7]))
-    print("\nНазвания по рейтингу:", titles_sorted_by_rating(movies))
-    print("Топ-3:", top_n_by_rating(movies))
-    print("\nФильмов по жанрам:", sorted(count_by_genre(movies).items()))
-    print("Фильмография O. Isaac:", actor_filmography(movies)["O. Isaac"])
-    print("Рейтинги выше среднего:", ratings_above_average(movies))
-    print("\nВсе жанры:", sorted(all_genres(movies)))
-    print("Общие актёры:", sorted(common_actors(movies[0], movies[3])))
-    print("Разность жанров:", sorted(genres_only_in_one(movies[5:6], movies[:5])))
-    print("\nФильмы с рейтингом не ниже 8.0:")
+
+    print("\nФильмы с рейтингом не ниже 8.0 (генератор):")
     for movie in iter_high_rated(movies):
-        print(format_report_line(movie))
-    print("Сумма минут при рейтинге выше 7:", total_duration_above_seven(movies))
+        print(f"  {format_report_line(movie)}")
+
+    print("\nКатегории, периоды и слаги:")
+    for movie in movies:
+        print(
+            f"  {normalize_title(movie['title'])}: "
+            f"{rating_tier(movie['rating'])}, {decade_label(movie['year'])}, "
+            f"{make_slug(movie['title'])}"
+        )
+
+    print("\nНазвания по убыванию рейтинга:")
+    print("; ".join(titles_sorted_by_rating(movies)))
+    print("\nРейтинги выше среднего:")
+    for title, rating in ratings_above_average(movies).items():
+        print(f"  {normalize_title(title)} — {rating}")
+
+    print("\nФильмографии актёров:")
+    for actor, titles in sorted(actor_filmography(movies).items()):
+        print(f"  {actor}: {', '.join(titles)}")
+
+    if len(movies) >= 4:
+        actors = ", ".join(sorted(common_actors(movies[0], movies[3])))
+        print(f"\nОбщие актёры фильмов №1 и №4: {actors or 'нет'}")
+    if len(movies) >= 6:
+        unique_genres = genres_only_in_one(movies[5:6], movies[:5])
+        print(
+            "Жанры фильма №6, которых нет в первых пяти: "
+            f"{', '.join(sorted(unique_genres)) or 'нет'}"
+        )
+
+
+if __name__ == "__main__":
+    build_report(movies)
