@@ -187,6 +187,36 @@ def top_n_by_rating(movies, n=3):
     return [(movie["title"], movie["rating"]) for movie in ordered_movies[:n]]
 
 
+#Этап 6
+def count_by_genre(movies):
+    counts = {}
+    for movie in movies:
+        for genre in movie["genres"]:
+            counts[genre] = counts.get(genre, 0) + 1
+    return counts
+
+
+def actor_filmography(movies):
+    filmography = {}
+    for movie in movies:
+        for actor in movie["actors"]:
+            if actor not in filmography:
+                filmography[actor] = []
+            filmography[actor].append(movie["title"])
+    return filmography
+
+
+def ratings_above_average(movies):
+    if not movies:
+        return {}
+    mean_rating = average_rating(movies)
+    return {
+        movie["title"]: movie["rating"]
+        for movie in movies
+        if movie["rating"] > mean_rating
+    }
+
+
 if __name__ == "__main__":
     print(f"Средний рейтинг: {average_rating(movies)}")
     print(f"Возраст фильмов (старый, новый, средний): {catalog_age_stats(movies)}")
@@ -204,3 +234,6 @@ if __name__ == "__main__":
     print(format_report_line(movies[7]))
     print("\nНазвания по рейтингу:", titles_sorted_by_rating(movies))
     print("Топ-3:", top_n_by_rating(movies))
+    print("\nФильмов по жанрам:", sorted(count_by_genre(movies).items()))
+    print("Фильмография O. Isaac:", actor_filmography(movies)["O. Isaac"])
+    print("Рейтинги выше среднего:", ratings_above_average(movies))
